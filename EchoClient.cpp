@@ -23,10 +23,8 @@
 #include "EchoClientContextFactory.h"
 
 #include <core/SNodeC.h>
-#include <net/in/stream/legacy/SocketClient.h>
-//
 #include <log/Logger.h>
-//
+#include <net/in/stream/legacy/SocketClient.h>
 #include <string>
 
 int main(int argc, char* argv[]) {
@@ -40,23 +38,26 @@ int main(int argc, char* argv[]) {
                                                                                         // template argument
     using SocketAddress = EchoClient::SocketAddress;                                    // Simplify data type
 
-    EchoClient echoClient; // Create anonymous client instance and connect to localhost:8001
-    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << "EchoClient: connected to '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << "EchoClient: disabled";
-                break;
-            case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
-                break;
-            case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
-                break;
-        }
-    });
+    EchoClient echoClient("echo"); // Create named client instance and connect to localhost:8001
+    echoClient.connect("localhost",
+                       8001,
+                       [instanceName = echoClient.getConfig().getInstanceName()](
+                           const SocketAddress& socketAddress, const core::socket::State& state) -> void { // Connect to server
+                           switch (state) {
+                               case core::socket::State::OK:
+                                   VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                   break;
+                               case core::socket::State::DISABLED:
+                                   VLOG(1) << instanceName << ": disabled";
+                                   break;
+                               case core::socket::State::ERROR:
+                                   LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                   break;
+                               case core::socket::State::FATAL:
+                                   LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                   break;
+                           }
+                       });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }
