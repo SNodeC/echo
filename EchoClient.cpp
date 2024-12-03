@@ -23,40 +23,140 @@
 #include "EchoClientContextFactory.h"
 
 #include <core/SNodeC.h>
+//
 #include <net/in/stream/legacy/SocketClient.h>
+#include <net/in6/stream/legacy/SocketClient.h>
+#include <net/l2/stream/legacy/SocketClient.h>
+#include <net/rc/stream/legacy/SocketClient.h>
+#include <net/un/stream/legacy/SocketClient.h>
 //
 #include <log/Logger.h>
 //
 #include <string>
 
 int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv); // Initialize the framework.
-                                    // Configure logging, create command line
-                                    // arguments for named instances.
+    core::SNodeC::init(argc, argv);
 
-    using EchoClient = net::in::stream::legacy::SocketClient<EchoClientContextFactory>; // Simplify data type
-                                                                                        // Note the use of our implemented
-                                                                                        // EchoClientContextFactory as
-                                                                                        // template argument
-    using SocketAddress = EchoClient::SocketAddress;                                    // Simplify data type
+    using EchoClientIn = net::in::stream::legacy::SocketClient<EchoClientContextFactory, std::string>;
+    using SocketAddressIn = EchoClientIn::SocketAddress;
 
-    EchoClient echoClient; // Create anonymous client instance and connect to localhost:8001
-    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
-        switch (state) {
-            case core::socket::State::OK:
-                VLOG(1) << "EchoClient: connected to '" << socketAddress.toString() << "'";
-                break;
-            case core::socket::State::DISABLED:
-                VLOG(1) << "EchoClient: disabled";
-                break;
-            case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
-                break;
-            case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
-                break;
-        }
-    });
+    const EchoClientIn echoClientIn("in", "IPv4 Socket");
+    echoClientIn.connect("localhost",
+                         8001,
+                         [instanceName = echoClientIn.getConfig().getInstanceName()](const SocketAddressIn& socketAddress,
+                                                                                     const core::socket::State& state) -> void {
+                             switch (state) {
+                                 case core::socket::State::OK:
+                                     VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                     break;
+                                 case core::socket::State::DISABLED:
+                                     VLOG(1) << instanceName << ": disabled";
+                                     break;
+                                 case core::socket::State::ERROR:
+                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                                 case core::socket::State::FATAL:
+                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                             }
+                         });
+
+    using EchoClientIn6 = net::in6::stream::legacy::SocketClient<EchoClientContextFactory, std::string>;
+    using SocketAddressIn6 = EchoClientIn6::SocketAddress;
+
+    const EchoClientIn6 echoClientIn6("in6", "IPv6 Socket");
+    echoClientIn6.connect("localhost",
+                          8001,
+                          [instanceName = echoClientIn6.getConfig().getInstanceName()](const SocketAddressIn6& socketAddress,
+                                                                                       const core::socket::State& state) -> void {
+                              switch (state) {
+                                  case core::socket::State::OK:
+                                      VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                      break;
+                                  case core::socket::State::DISABLED:
+                                      VLOG(1) << instanceName << ": disabled";
+                                      break;
+                                  case core::socket::State::ERROR:
+                                      LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      break;
+                                  case core::socket::State::FATAL:
+                                      LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      break;
+                              }
+                          });
+
+    using EchoClientUn = net::un::stream::legacy::SocketClient<EchoClientContextFactory, std::string>;
+    using SocketAddressUn = EchoClientUn::SocketAddress;
+
+    const EchoClientUn echoClientUn("un", "Unix-Domain Socket");
+    echoClientUn.connect("/tmp/echoserver",
+                         [instanceName = echoClientUn.getConfig().getInstanceName()](const SocketAddressUn& socketAddress,
+                                                                                     const core::socket::State& state) -> void {
+                             switch (state) {
+                                 case core::socket::State::OK:
+                                     VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                     break;
+                                 case core::socket::State::DISABLED:
+                                     VLOG(1) << instanceName << ": disabled";
+                                     break;
+                                 case core::socket::State::ERROR:
+                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                                 case core::socket::State::FATAL:
+                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                             }
+                         });
+
+    using EchoClientRc = net::rc::stream::legacy::SocketClient<EchoClientContextFactory, std::string>;
+    using SocketAddressRc = EchoClientRc::SocketAddress;
+
+    const EchoClientRc echoClientRc("rc", "RFCOMM Socket");
+    echoClientRc.connect("44:01:BB:A3:63:32", // Bluetooth address of peer (MPOW)
+                         1,
+                         "70:D8:23:5B:B6:C4", // Bluetooth address (INTERN)
+                         [instanceName = echoClientRc.getConfig().getInstanceName()](const SocketAddressRc& socketAddress,
+                                                                                     const core::socket::State& state) -> void {
+                             switch (state) {
+                                 case core::socket::State::OK:
+                                     VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                     break;
+                                 case core::socket::State::DISABLED:
+                                     VLOG(1) << instanceName << ": disabled";
+                                     break;
+                                 case core::socket::State::ERROR:
+                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                                 case core::socket::State::FATAL:
+                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                             }
+                         });
+
+    using EchoClientL2 = net::l2::stream::legacy::SocketClient<EchoClientContextFactory, std::string>;
+    using SocketAddressL2 = EchoClientL2::SocketAddress;
+
+    const EchoClientL2 echoClientL2("l2", "L2CAP Socket");
+    echoClientL2.connect("44:01:BB:A3:63:32", // Bluetooth address of peer (MPOW)
+                         0x1023,
+                         "70:D8:23:5B:B6:C4", // Bluetooth address (INTERN)
+                         [instanceName = echoClientL2.getConfig().getInstanceName()](const SocketAddressL2& socketAddress,
+                                                                                     const core::socket::State& state) -> void {
+                             switch (state) {
+                                 case core::socket::State::OK:
+                                     VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                     break;
+                                 case core::socket::State::DISABLED:
+                                     VLOG(1) << instanceName << ": disabled";
+                                     break;
+                                 case core::socket::State::ERROR:
+                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                                 case core::socket::State::FATAL:
+                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     break;
+                             }
+                         });
 
     return core::SNodeC::start(); // Start the event loop, daemonize if requested.
 }

@@ -24,10 +24,17 @@
 #include <core/socket/stream/SocketContextFactory.h>
 
 class EchoClientContextFactory : public core::socket::stream::SocketContextFactory {
+public:
+    explicit EchoClientContextFactory(const std::string& name)
+        : name(name) {
+    }
+
 private:
     core::socket::stream::SocketContext* create(core::socket::stream::SocketConnection* socketConnection) override {
-        return new EchoClientContext(socketConnection);
+        return new EchoClientContext(socketConnection, name);
     }
+
+    std::string name;
 };
 
 #endif // _ECHOCLIENTCONTEXTFACTORY_H

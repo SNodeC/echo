@@ -24,7 +24,6 @@
 #include <core/socket/stream/SocketContext.h>
 #include <log/Logger.h>
 //
-#include <iostream>
 #include <string>
 
 class EchoServerContext : public core::socket::stream::SocketContext {
@@ -42,7 +41,7 @@ private:
 
     bool onSignal(int signum) override { // Called in case a signal has been received
         VLOG(1) << "Echo disconnected due to signal=" << signum;
-        return true; // Close the connection
+        return true; // Echo should be terminated
     }
 
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework

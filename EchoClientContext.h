@@ -24,19 +24,21 @@
 #include <core/socket/stream/SocketContext.h>
 #include <log/Logger.h>
 //
-#include <iostream>
 #include <string>
 
 class EchoClientContext : public core::socket::stream::SocketContext {
 public:
-    using core::socket::stream::SocketContext::SocketContext;
+    explicit EchoClientContext(core::socket::stream::SocketConnection* socketConnection, const std::string& text)
+        : core::socket::stream::SocketContext(socketConnection)
+        , text(text) {
+    }
 
 private:
     void onConnected() override { // Called in case a connection has been established successfully.
         VLOG(1) << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString();
 
         VLOG(1) << "Initiating data exchange";
-        sendToPeer("Hello peer! It's nice talking to you"); // Initiate the ping-pong data exchange.
+        sendToPeer("Hello peer! It's nice talking to you via " + text); // Initiate the ping-pong data exchange.
     }
 
     void onDisconnected() override { // Called in case the connection has been closed.
@@ -45,7 +47,7 @@ private:
 
     bool onSignal(int signum) override { // Called in case a signal has been received
         VLOG(1) << "Echo disconnected due to signal=" << signum;
-        return true; // Close the connection
+        return true; // Echo should be terminated
     }
 
     std::size_t onReceivedFromPeer() override { // Called in case data have already been received by the framework
@@ -66,6 +68,8 @@ private:
 
         return junkLen; // Return the amount of data processed to the framework.
     }
+
+    std::string text;
 };
 
 #endif // _ECHOCLIENTCONTEXT_H
