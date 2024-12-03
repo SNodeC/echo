@@ -23,37 +23,79 @@
 #include "EchoServerContextFactory.h"
 
 #include <core/SNodeC.h>
-#include <net/in/stream/legacy/SocketServer.h>
-//
 #include <log/Logger.h>
-//
+#include <net/in/stream/legacy/SocketServer.h>
+#include <net/rc/stream/legacy/SocketServer.h>
+#include <net/un/stream/legacy/SocketServer.h>
 #include <string>
 
 int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv); // Initialize the framework.
-                                    // Configure logging, create command line
-                                    // arguments for named instances.
+    core::SNodeC::init(argc, argv);
 
-    using EchoServer = net::in::stream::legacy::SocketServer<EchoServerContextFactory>; // Simplify data type
-                                                                                        // Note the use of our implemented
-                                                                                        // EchoServerContextFactory as
-                                                                                        // template argument
-    using SocketAddress = EchoServer::SocketAddress;                                    // Simplify data type
+    using EchoServerIn = net::in::stream::legacy::SocketServer<EchoServerContextFactory>;
+    using SocketAddressIn = EchoServerIn::SocketAddress;
 
-    EchoServer echoServer; // Create server instance and listen on all interfaces on port 8001
-    echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+    EchoServerIn echoServerIn;
+    echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServer: connected to '" << socketAddress.toString() << "'";
+                VLOG(1) << "EchoServerIn: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoServer: disabled";
+                VLOG(1) << "EchoServerIn: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
+                VLOG(1) << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
+                VLOG(1) << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
+                break;
+        }
+    });
+
+    using EchoServerUn = net::un::stream::legacy::SocketServer<EchoServerContextFactory>;
+    using SocketAddressUn = EchoServerUn::SocketAddress;
+
+    EchoServerUn echoServerUn;
+    echoServerUn.listen("/tmp/echoserver", [](const SocketAddressUn& socketAddress, const core::socket::State& state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoServerUn: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoServerUn: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
+                break;
+        }
+    });
+
+    using EchoServerRc = net::rc::stream::legacy::SocketServer<EchoServerContextFactory>;
+    using SocketAddressRc = EchoServerRc::SocketAddress;
+
+    // Disabled because a peer would be needed and that's out of scope of this demo app.
+    // If a peer exists and runs the echo server remove the commented line
+    // echoClientRc.getConfig().setDisabled() and specify the bluetooth address and channel
+    // of the peer.
+    EchoServerRc echoServerRc;
+    echoServerRc.getConfig().setDisabled();
+    echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoServerRc: listening on '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoServerRc: disabled";
+                break;
+            case core::socket::State::ERROR:
+                VLOG(1) << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
+                break;
+            case core::socket::State::FATAL:
+                VLOG(1) << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });

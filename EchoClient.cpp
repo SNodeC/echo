@@ -23,37 +23,85 @@
 #include "EchoClientContextFactory.h"
 
 #include <core/SNodeC.h>
-#include <net/in/stream/legacy/SocketClient.h>
-//
 #include <log/Logger.h>
-//
+#include <net/in/stream/legacy/SocketClient.h>
+#include <net/rc/stream/legacy/SocketClient.h>
+#include <net/un/stream/legacy/SocketClient.h>
 #include <string>
 
 int main(int argc, char* argv[]) {
-    core::SNodeC::init(argc, argv); // Initialize the framework.
-                                    // Configure logging, create command line
-                                    // arguments for named instances.
+    core::SNodeC::init(argc, argv);
 
-    using EchoClient = net::in::stream::legacy::SocketClient<EchoClientContextFactory>; // Simplify data type
-                                                                                        // Note the use of our implemented
-                                                                                        // EchoClientContextFactory as
-                                                                                        // template argument
-    using SocketAddress = EchoClient::SocketAddress;                                    // Simplify data type
+    static std::string ipv4("IPv4 Socket");
+    using EchoClientIn = net::in::stream::legacy::SocketClient<EchoClientContextFactory, std::string>;
+    using SocketAddressIn = EchoClientIn::SocketAddress;
 
-    EchoClient echoClient; // Create anonymous client instance and connect to localhost:8001
-    echoClient.connect("localhost", 8001, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
+    EchoClientIn echoClientIn("IPv4 Socket"); // This is not a named instance. Instead the SocketContextFactory expects a std::string. Thus,
+                                              // "IPv4 Socket" is passed as argument to it.
+    echoClientIn.connect("localhost", 8001, [](const SocketAddressIn& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoClient: connected to '" << socketAddress.toString() << "'";
+                VLOG(1) << "EchoClientIn: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoClient: disabled";
+                VLOG(1) << "EchoClientIn: disabled";
                 break;
             case core::socket::State::ERROR:
-                LOG(ERROR) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
+                LOG(ERROR) << "EchoClientIn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                LOG(FATAL) << "EchoClient: " << socketAddress.toString() << ": " << state.what();
+                LOG(FATAL) << "EchoClientIn: " << socketAddress.toString() << ": " << state.what();
+                break;
+        }
+    });
+
+    static std::string unixDomain("Unix-Domain Socket");
+    using EchoClientUn = net::un::stream::legacy::SocketClient<EchoClientContextFactory, std::string>;
+    using SocketAddressUn = EchoClientUn::SocketAddress;
+
+    EchoClientUn echoClientUn("Unix-Domain Socket"); // This is not a named instance. Instead the SocketContextFactory expects a
+                                                     // std::string. Thus, "Unix-Domain Socket" is passed as argument to it.
+    echoClientUn.connect("/tmp/echoserver", [](const SocketAddressUn& socketAddress, const core::socket::State& state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoClientUn: : connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoClientUn: disabled";
+                break;
+            case core::socket::State::ERROR:
+                LOG(ERROR) << "EchoClientUn: " << socketAddress.toString() << ": " << state.what();
+                break;
+            case core::socket::State::FATAL:
+                LOG(FATAL) << "EchoClientUn: " << socketAddress.toString() << ": " << state.what();
+                break;
+        }
+    });
+
+    // Disabled because a peer would be needed and that's out of scope of this demo app.
+    // If a peer exists and runs the echo server remove the commented line
+    // echoClientRc.getConfig().setDisabled(); and specify the bluetooth address and channel
+    // of the peer.
+    static std::string rc("RFCOMM Socket");
+    using EchoClientRc = net::rc::stream::legacy::SocketClient<EchoClientContextFactory, std::string>;
+    using SocketAddressRc = EchoClientRc::SocketAddress;
+
+    EchoClientRc echoClientRc("RFCOMM Socket"); // This is not a named instance. Instead the SocketContextFactory expects a std::string.
+                                                // Thus, "RFCOMM Socket" is passed as argument to it.
+    echoClientRc.getConfig().setDisabled();
+    echoClientRc.connect("10:3D:1C:AC:BA:9C", 1, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
+        switch (state) {
+            case core::socket::State::OK:
+                VLOG(1) << "EchoClientRc: connected to '" << socketAddress.toString() << "'";
+                break;
+            case core::socket::State::DISABLED:
+                VLOG(1) << "EchoClientRc: disabled";
+                break;
+            case core::socket::State::ERROR:
+                LOG(ERROR) << "EchoClientRc: " << socketAddress.toString() << ": " << state.what();
+                break;
+            case core::socket::State::FATAL:
+                LOG(FATAL) << "EchoClientRc: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
