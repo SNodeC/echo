@@ -30,7 +30,7 @@
 #include <net/rc/stream/legacy/SocketClient.h>
 #include <net/un/stream/legacy/SocketClient.h>
 //
-#include <log/Logger.h>
+#include <SemanticLog.h>
 //
 #include <string>
 
@@ -47,16 +47,16 @@ int main(int argc, char* argv[]) {
                                                                                       const core::socket::State& state) -> void {
                              switch (state) {
                                  case core::socket::State::OK:
-                                     VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                     snode::semantic::appLog().trace() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                                      break;
                                  case core::socket::State::DISABLED:
-                                     VLOG(1) << instanceName << ": disabled";
+                                     snode::semantic::appLog().trace() << instanceName << ": disabled";
                                      break;
                                  case core::socket::State::ERROR:
-                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                      break;
                                  case core::socket::State::FATAL:
-                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                      break;
                              }
                          });
@@ -71,16 +71,16 @@ int main(int argc, char* argv[]) {
                                                                                         const core::socket::State& state) -> void {
                               switch (state) {
                                   case core::socket::State::OK:
-                                      VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                      snode::semantic::appLog().trace() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                                       break;
                                   case core::socket::State::DISABLED:
-                                      VLOG(1) << instanceName << ": disabled";
+                                      snode::semantic::appLog().trace() << instanceName << ": disabled";
                                       break;
                                   case core::socket::State::ERROR:
-                                      LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                       break;
                                   case core::socket::State::FATAL:
-                                      LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                      snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                       break;
                               }
                           });
@@ -94,16 +94,16 @@ int main(int argc, char* argv[]) {
                                                                                       const core::socket::State& state) -> void {
                              switch (state) {
                                  case core::socket::State::OK:
-                                     VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                     snode::semantic::appLog().trace() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                                      break;
                                  case core::socket::State::DISABLED:
-                                     VLOG(1) << instanceName << ": disabled";
+                                     snode::semantic::appLog().trace() << instanceName << ": disabled";
                                      break;
                                  case core::socket::State::ERROR:
-                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                      break;
                                  case core::socket::State::FATAL:
-                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                      break;
                              }
                          });
@@ -119,16 +119,16 @@ int main(int argc, char* argv[]) {
                                                                                       const core::socket::State& state) -> void {
                              switch (state) {
                                  case core::socket::State::OK:
-                                     VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                     snode::semantic::appLog().trace() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                                      break;
                                  case core::socket::State::DISABLED:
-                                     VLOG(1) << instanceName << ": disabled";
+                                     snode::semantic::appLog().trace() << instanceName << ": disabled";
                                      break;
                                  case core::socket::State::ERROR:
-                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                      break;
                                  case core::socket::State::FATAL:
-                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                      break;
                              }
                          });
@@ -144,16 +144,16 @@ int main(int argc, char* argv[]) {
                                                                                       const core::socket::State& state) -> void {
                              switch (state) {
                                  case core::socket::State::OK:
-                                     VLOG(1) << instanceName << ": connected to '" << socketAddress.toString() << "'";
+                                     snode::semantic::appLog().trace() << instanceName << ": connected to '" << socketAddress.toString() << "'";
                                      break;
                                  case core::socket::State::DISABLED:
-                                     VLOG(1) << instanceName << ": disabled";
+                                     snode::semantic::appLog().trace() << instanceName << ": disabled";
                                      break;
                                  case core::socket::State::ERROR:
-                                     LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                      break;
                                  case core::socket::State::FATAL:
-                                     LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                                     snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                                      break;
                              }
                          });
