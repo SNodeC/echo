@@ -23,7 +23,7 @@
 #include "EchoServerContextFactory.h"
 
 #include <core/SNodeC.h>
-#include <log/Logger.h>
+#include <SemanticLog.h>
 #include <net/in/stream/tls/SocketServer.h>
 #include <string>
 //
@@ -58,10 +58,10 @@ int main(int argc, char* argv[]) {
     echoServer.getConfig()->setCertKeyPassword("snode.c");
 
     echoServer.setOnConnect([&echoServer](SocketConnection* socketConnection) -> void { // onConnect
-        VLOG(0) << "OnConnect " << echoServer.getConfig()->getInstanceName();
+        snode::semantic::appLog().trace() << "OnConnect " << echoServer.getConfig()->getInstanceName();
 
-        VLOG(0) << "\tLocal: " + socketConnection->getLocalAddress().toString();
-        VLOG(0) << "\tPeer:  " + socketConnection->getRemoteAddress().toString();
+        snode::semantic::appLog().trace() << "\tLocal: " + socketConnection->getLocalAddress().toString();
+        snode::semantic::appLog().trace() << "\tPeer:  " + socketConnection->getRemoteAddress().toString();
 
         // From here on it's "only" OpenSSL certificate handling!
 
@@ -76,21 +76,21 @@ int main(int argc, char* argv[]) {
     });
 
     echoServer.setOnConnected([&echoServer](SocketConnection* socketConnection) -> void { // onConnected
-        VLOG(0) << "OnConnected " << echoServer.getConfig()->getInstanceName();
+        snode::semantic::appLog().trace() << "OnConnected " << echoServer.getConfig()->getInstanceName();
 
         // From here on it's "only" OpenSSL certificate handling!
         X509* server_cert = SSL_get_peer_certificate(socketConnection->getSSL());
         if (server_cert != nullptr) {
             long verifyErr = SSL_get_verify_result(socketConnection->getSSL());
 
-            VLOG(0) << "\tPeer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
+            snode::semantic::appLog().trace() << "\tPeer certificate: " + std::string(X509_verify_cert_error_string(verifyErr));
 
             char* str = X509_NAME_oneline(X509_get_subject_name(server_cert), nullptr, 0);
-            VLOG(0) << "\t   Subject: " + std::string(str);
+            snode::semantic::appLog().trace() << "\t   Subject: " + std::string(str);
             OPENSSL_free(str);
 
             str = X509_NAME_oneline(X509_get_issuer_name(server_cert), nullptr, 0);
-            VLOG(0) << "\t   Issuer: " + std::string(str);
+            snode::semantic::appLog().trace() << "\t   Issuer: " + std::string(str);
             OPENSSL_free(str);
 
             // We could do all sorts of certificate verification stuff here before deallocating the certificate.
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 
             int32_t altNameCount = sk_GENERAL_NAME_num(subjectAltNames);
 
-            VLOG(0) << "\t   Subject alternative name count: " << altNameCount;
+            snode::semantic::appLog().trace() << "\t   Subject alternative name count: " << altNameCount;
             for (int32_t i = 0; i < altNameCount; ++i) {
                 GENERAL_NAME* generalName = sk_GENERAL_NAME_value(subjectAltNames, i);
 
@@ -108,28 +108,28 @@ int main(int argc, char* argv[]) {
                     std::string subjectAltName =
                         std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier)),
                                     static_cast<std::size_t>(ASN1_STRING_length(generalName->d.uniformResourceIdentifier)));
-                    VLOG(0) << "\t      SAN (URI): '" + subjectAltName + "'";
+                    snode::semantic::appLog().trace() << "\t      SAN (URI): '" + subjectAltName + "'";
                 } else if (generalName->type == GEN_DNS) {
                     std::string subjectAltName = std::string(reinterpret_cast<const char*>(ASN1_STRING_get0_data(generalName->d.dNSName)),
                                                              static_cast<std::size_t>(ASN1_STRING_length(generalName->d.dNSName)));
-                    VLOG(0) << "\t      SAN (DNS): '" + subjectAltName + "'";
+                    snode::semantic::appLog().trace() << "\t      SAN (DNS): '" + subjectAltName + "'";
                 } else {
-                    VLOG(0) << "\t      SAN (Type): '" + std::to_string(generalName->type) + "'";
+                    snode::semantic::appLog().trace() << "\t      SAN (Type): '" + std::to_string(generalName->type) + "'";
                 }
             }
             sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
 
             X509_free(server_cert);
         } else {
-            VLOG(0) << "\tPeer certificate: no certificate";
+            snode::semantic::appLog().trace() << "\tPeer certificate: no certificate";
         }
     });
 
     echoServer.setOnDisconnect([&echoServer](SocketConnection* socketConnection) -> void { // onDisconnect
-        VLOG(0) << "OnDisconnect " << echoServer.getConfig()->getInstanceName();
+        snode::semantic::appLog().trace() << "OnDisconnect " << echoServer.getConfig()->getInstanceName();
 
-        VLOG(0) << "\tLocal: " + socketConnection->getLocalAddress().toString();
-        VLOG(0) << "\tPeer:  " + socketConnection->getRemoteAddress().toString();
+        snode::semantic::appLog().trace() << "\tLocal: " + socketConnection->getLocalAddress().toString();
+        snode::semantic::appLog().trace() << "\tPeer:  " + socketConnection->getRemoteAddress().toString();
     });
 
     echoServer.listen( // Listen on port 8001 on all interfaces
@@ -138,16 +138,16 @@ int main(int argc, char* argv[]) {
                                                                    const core::socket::State& state) -> void {
             switch (state) {
                 case core::socket::State::OK:
-                    VLOG(1) << instanceName << ": listening on '" << socketAddress.toString() << "'";
+                    snode::semantic::appLog().trace() << instanceName << ": listening on '" << socketAddress.toString() << "'";
                     break;
                 case core::socket::State::DISABLED:
-                    VLOG(1) << instanceName << ": disabled";
+                    snode::semantic::appLog().trace() << instanceName << ": disabled";
                     break;
                 case core::socket::State::ERROR:
-                    LOG(ERROR) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().error() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
                 case core::socket::State::FATAL:
-                    LOG(FATAL) << instanceName << ": " << socketAddress.toString() << ": " << state.what();
+                    snode::semantic::appLog().critical() << instanceName << ": " << socketAddress.toString() << ": " << state.what();
                     break;
             }
         });
