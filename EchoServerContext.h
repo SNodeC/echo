@@ -22,7 +22,7 @@
 #include <core/socket/SocketAddress.h>
 #include <core/socket/stream/SocketConnection.h>
 #include <core/socket/stream/SocketContext.h>
-#include <log/Logger.h>
+#include <SemanticLog.h>
 //
 #include <iostream>
 #include <string>
@@ -33,15 +33,15 @@ public:
 
 private:
     void onConnected() override { // Called in case a connection has been established successfully.
-        VLOG(1) << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString();
+        snode::semantic::appLog().info() << "Echo connected to " << getSocketConnection()->getRemoteAddress().toString();
     }
 
     void onDisconnected() override { // Called in case the connection has been closed.
-        VLOG(1) << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString();
+        snode::semantic::appLog().info() << "Echo disconnected from " << getSocketConnection()->getRemoteAddress().toString();
     }
 
     bool onSignal(int signum) override { // Called in case a signal has been received
-        VLOG(1) << "Echo disconnected due to signal=" << signum;
+        snode::semantic::appLog().info() << "Echo disconnected due to signal=" << signum;
         return true; // Close the connection
     }
 
@@ -56,7 +56,7 @@ private:
                                                         // onReceivedFromPeer will be called again.
                                                         // No error can occure here.
         if (junkLen > 0) {
-            VLOG(1) << "Data to reflect: " << std::string(junk, junkLen);
+            snode::semantic::appLog().debug() << "Data to reflect: " << std::string(junk, junkLen);
             sendToPeer(junk, junkLen); // Reflect the received data back to the client.
                                        // Out of memory is the only error which can occure here.
         }
