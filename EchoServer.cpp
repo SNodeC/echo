@@ -23,7 +23,7 @@
 #include "EchoServerContextFactory.h"
 
 #include <core/SNodeC.h>
-#include <log/Logger.h>
+#include <SemanticLog.h>
 #include <net/in/stream/legacy/SocketServer.h>
 #include <net/rc/stream/legacy/SocketServer.h>
 #include <net/un/stream/legacy/SocketServer.h>
@@ -39,16 +39,16 @@ int main(int argc, char* argv[]) {
     echoServerIn.listen(8001, [](const SocketAddressIn& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServerIn: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoServerIn: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoServerIn: disabled";
+                snode::semantic::appLog().trace() << "EchoServerIn: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().trace() << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().trace() << "EchoServerIn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -60,16 +60,16 @@ int main(int argc, char* argv[]) {
     echoServerUn.listen("/tmp/echoserver", [](const SocketAddressUn& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServerUn: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoServerUn: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoServerUn: disabled";
+                snode::semantic::appLog().trace() << "EchoServerUn: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().trace() << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().trace() << "EchoServerUn: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
@@ -86,16 +86,16 @@ int main(int argc, char* argv[]) {
     echoServerRc.listen(16, [](const SocketAddressRc& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServerRc: listening on '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().trace() << "EchoServerRc: listening on '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoServerRc: disabled";
+                snode::semantic::appLog().trace() << "EchoServerRc: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().trace() << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().trace() << "EchoServerRc: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
