@@ -25,7 +25,7 @@
 #include <core/SNodeC.h>
 #include <net/in/stream/legacy/SocketServer.h>
 //
-#include <log/Logger.h>
+#include <SemanticLog.h>
 //
 #include <string>
 
@@ -44,16 +44,16 @@ int main(int argc, char* argv[]) {
     echoServer.listen(8001, 5, [](const SocketAddress& socketAddress, const core::socket::State& state) -> void {
         switch (state) {
             case core::socket::State::OK:
-                VLOG(1) << "EchoServer: connected to '" << socketAddress.toString() << "'";
+                snode::semantic::appLog().info() << "EchoServer: connected to '" << socketAddress.toString() << "'";
                 break;
             case core::socket::State::DISABLED:
-                VLOG(1) << "EchoServer: disabled";
+                snode::semantic::appLog().info() << "EchoServer: disabled";
                 break;
             case core::socket::State::ERROR:
-                VLOG(1) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().error() << "EchoServer: " << socketAddress.toString() << ": " << state.what();
                 break;
             case core::socket::State::FATAL:
-                VLOG(1) << "EchoServer: " << socketAddress.toString() << ": " << state.what();
+                snode::semantic::appLog().critical() << "EchoServer: " << socketAddress.toString() << ": " << state.what();
                 break;
         }
     });
